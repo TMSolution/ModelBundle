@@ -1,0 +1,4 @@
+services:
+    model_factory:
+            class: Core\ModelBundle\Model\ModelFactory
+            arguments: [@service_container]

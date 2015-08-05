@@ -1,0 +1,3 @@
+core_model_homepage:
+    path:     /hello/{name}
+    defaults: { _controller: CoreModelBundle:Default:index }
