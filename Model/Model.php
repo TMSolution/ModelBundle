@@ -8,11 +8,7 @@ use Doctrine\ORM\EntityNotFoundException;
 class Model
 {
 
-    const VIEW = "VIEW";
-    const DELETE = "DELETE";
-    const EDIT = "EDIT";
-    const CREATE = "CREATE";
-    const UPDATE = "UPDATE";
+ 
 
     protected $container = null;
     protected $manager = null;
@@ -60,13 +56,6 @@ class Model
         return $this->manager;
     }
 
-    public function checkRight($actionName, $row = null)
-    {
-//        if (false === $this->container->get('security.context')->isGranted('VIEW', $objectIdentity)) {
-//            throw new AccessDeniedException();
-//        }
-    }
-
     protected function doSave($entityObject)
     {
         $this->manager->persist($entityObject);
@@ -94,25 +83,16 @@ class Model
         $this->manager->flush();
     }
 
-    public function create($entityObject, $executeImmediately = false, $logOperation = false, $checkRights = true)
+    public function create($entityObject, $executeImmediately = false, $logOperation = false)
     {
-        if ($checkRights) {
-            $this->checkRight(self::CREATE);
-        }
+        
         $this->doSave($entityObject);
         $this->executeImmediately($executeImmediately);
-        if ($logOperation) {
-            $logManager = $this->container->get('TMSolution.Logging.EntityLogger');
-            $logManager->addCreateOperation($entityObject);
-        }
         return $entityObject;
     }
 
-    public function createEntities(ArrayCollection $arrayCollection, $executeImmediately = false, $checkRights = true)
+    public function createEntities(ArrayCollection $arrayCollection, $executeImmediately = false)
     {
-        if ($checkRights) {
-            $this->checkRight(self::CREATE);
-        }
         foreach ($arrayCollection as $entityObject) {
             $this->doSave($entityObject);
         }
@@ -124,17 +104,11 @@ class Model
     /**
      * @todo Sprawdzic checkright
      */
-    public function delete($entityObject, $executeImmediately = false, $logOperation = false, $checkRights = true)
+    public function delete($entityObject, $executeImmediately = false, $logOperation = false)
     {
-        if ($checkRights) {
-            $this->checkRight(self::DELETE, $this->entityClass);
-        }
         $this->doRemove($entityObject);
         $this->executeImmediately($executeImmediately);
-        if ($logOperation) {
-            $logManager = $this->container->get('TMSolution.Logging.EntityLogger');
-            $logManager->addDeleteOperation($entityObject);
-        }
+        
     }
 
     /**
@@ -144,24 +118,12 @@ class Model
      * @param type $executeImmediately
      * @return entityObject
      */
-    public function update($entityObject, $executeImmediately = false, $logOperation = false, $checkRights = true)
+    public function update($entityObject, $executeImmediately = false, $logOperation = false)
     {
-        if ($checkRights) {
-            $this->checkRight(self::UPDATE);
-        }
+        
         $this->doSave($entityObject);
-        try {
-            $this->executeImmediately($executeImmediately);
-            if ($logOperation) {
-                $logManager = $this->container->get('TMSolution.Logging.EntityLogger');
-                $logManager->addCreateOperation($entityObject);
-            }
-        } catch (\Exception $ex) {
-            echo "<pre>";
-            \Doctrine\Common\Util\Debug::dump($ex);
-            echo "</pre>";
-        }
-
+        $this->executeImmediately($executeImmediately);
+        
         return $entityObject;
     }
 
@@ -172,11 +134,9 @@ class Model
      * @throws EntityNotFoundException Encja z wybranym id nie istnieje lub
      * niepoprawny typ id
      */
-    public function findOneById($id, $checkRights = true)
+    public function findOneById($id)
     {
-//        if ($checkRights) {
-//            $this->checkRight(self::VIEW);
-//        }
+
         $repository = $this->manager->getRepository($this->entityClass);
         $entityObject = $repository->findOneById($id);
         if ($entityObject == null) {
@@ -238,11 +198,9 @@ class Model
      * @TODO Do poprawy 
      */
 
-    public function read(array $params = array(), $limit = null, $offset = null, array $order = array(), $checkRights = true)
+    public function read(array $params = array(), $limit = null, $offset = null, array $order = array())
     {
-        if ($checkRights) {
-            $this->checkRight(self::VIEW);
-        }
+        
         return $this->manager->getRepository($this->entityClass)->findBy($params, $order, $limit, $offset);
     }
 
@@ -260,7 +218,6 @@ class Model
      */
     public function getQueryBuilder($alias = 'u')
     {
-        $this->checkRight(self::VIEW);
         return $this->getRepository()->createQueryBuilder($alias);
     }
 
@@ -542,75 +499,6 @@ class Model
         return $this->container->get('security.context')->getToken()->getUser();
     }
 
-    public function renderShowTable($entityName, $entity)
-    {
-        $text = '';
-        foreach ($this->getMetadata()->fieldMappings as $field) {
-
-            $method = $this->checkMethod($entity, $field['fieldName']);
-
-            if ($method && $field['fieldName'] == 'id') {
-                $printValue = $entity->$method();
-                $textId = '<tr>
-                        <th>' . $field['fieldName'] . '</th>
-                        <td>' . $printValue . '</td>
-                    </tr>';
-            } elseif ($method && $field['fieldName'] == 'avatar') { //@TODO do zmiany - nie wiadomo skąd informacja że pole jest zdjęciem
-                $printValue = '<div style="width:200px;"><img style="max-width:180px;" src="/owca/web/' . $entity->$method() . '" class="img-responsive img-rounded" alt="' . $field['fieldName'] . '"></div>';
-                $text.='<tr>
-                        <th>' . $field['fieldName'] . '</th>
-                        <td>' . $printValue . '</td>
-                    </tr>';
-            } elseif ($method && $field['type'] == 'text') {
-                $text.='';
-            } elseif ($method) {
-
-
-                $value = $entity->$method();
-                if (strpos($field['fieldName'], 'password') !== false && $field['type'] == 'string') {
-                    $printValue = '************';
-                } elseif ($field['type'] == 'boolean') {
-
-                    if ($value) {
-                        $printValue = '<i class="icon-check"></i>';
-                    } else {
-                        $printValue = '<i class="icon-check-empty"></i>';
-                    }
-                } elseif ($field['type'] == 'datetime') {
-
-                    if (is_object($value)) {
-                        $printValue = $value->format('Y-m-d H:i:s');
-                    } else {
-                        $printValue = '';
-                    }
-                } elseif ($field['type'] == 'date') {
-
-                    if (is_object($value)) {
-                        $printValue = $value->format('Y-m-d');
-                    } else {
-                        $printValue = '';
-                    }
-                } elseif ($field['type'] == 'array') {
-                    $printValue = '<ul>';
-                    foreach ($value as $element) {
-                        $printValue .= '<li>' . $element . '</li>';
-                    }
-                    $printValue .= '</ul>';
-                } else {
-
-                    $printValue = $value;
-                }
-
-
-                $text.='<tr>
-                        <th>' . $field['fieldName'] . '</th>
-                        <td>' . $printValue . '</td>
-                    </tr>';
-            }
-        }
-
-
-        return $textId . $text;
-    }
+ 
 
 }
