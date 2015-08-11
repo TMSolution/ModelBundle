@@ -284,7 +284,7 @@ class Model
         }
     }
 
-    protected function checkMethod($entity, $fieldName)
+    public function checkMethod($entity, $fieldName)
     {
         $reflClass = new \ReflectionClass($entity);
 
