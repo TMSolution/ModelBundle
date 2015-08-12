@@ -390,7 +390,7 @@ class Model
      */
     public function getEntityName($index = 0, $entityName = null)
     {
-        return $this->container->get('classmapper')->getEntityName($entityName ? $entityName : $this->entityClass, $index);
+        return $this->container->get('classmapperservice')->getEntityName($entityName ? $entityName : $this->entityClass, $index);
     }
 
     /**
