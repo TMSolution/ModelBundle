@@ -460,13 +460,18 @@ class Model
         foreach ($metadata->associationMappings as $field => $parameters) {
 
             $type = $this->association[$parameters["type"]];
+            /* calculate add methods for associated fields - couses bugs in analize*/
+            /*
             if ($type === "ManyToMany" || $type == "OneToMany") {
 
+                
                 $value = $this->findSingularForm($parameters["fieldName"]);
                 if ($value !== false) {
                     $fieldsInfo[$value] = array("is_object" => true, "type" => "object", "association" => $type, "virtual" => true, "object_name" => $parameters["targetEntity"], "setter" => $this->findSetterForPropertyByPrefix($value, array("set", "add")), $value);
                 }
             }
+             
+             */
             $fieldsInfo[$parameters["fieldName"]] = array("is_object" => true, "type" => "object", "association" => $type, "virtual" => false, "object_name" => $parameters["targetEntity"], "setter" => $this->findSetterForPropertyByPrefix($parameters["fieldName"], array("set", "add")));
         }
         return $fieldsInfo;
