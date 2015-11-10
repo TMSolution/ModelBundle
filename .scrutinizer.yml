@@ -56,7 +56,7 @@ coding_style:
 
 
 tools:
-    external_code_coverage: true
+    external_code_coverage: false
     external_code_coverage:
         timeout: 600    # Timeout in seconds.
 
