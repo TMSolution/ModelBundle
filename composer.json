@@ -25,7 +25,6 @@
         "phpunit/phpunit-story": "*", 
         "phploc/phploc": "*", 
         "fabpot/php-cs-fixer": "*", 
-        "krzysiekpiasecki/stopwatch": "*" 
     },
     "autoload": {
         "psr-4": {
