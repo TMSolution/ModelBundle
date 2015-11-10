@@ -1,0 +1,66 @@
+checks:
+    php:
+        fix_php_opening_tag: false
+        remove_php_closing_tag: false
+        one_class_per_file: true
+        side_effects_or_types: false
+        no_mixed_inline_html: false
+        require_braces_around_control_structures: false
+        php5_style_constructor: false
+        no_global_keyword: false
+        avoid_usage_of_logical_operators: false
+        psr2_class_declaration: true
+        no_underscore_prefix_in_properties: false
+        no_underscore_prefix_in_methods: false
+        blank_line_after_namespace_declaration: false
+        single_namespace_per_use: false
+        psr2_switch_declaration: true
+        psr2_control_structure_declaration: true
+        avoid_superglobals: false
+        security_vulnerabilities: false
+        no_exit: false
+        code_rating: true
+        duplication: true
+
+
+coding_style:
+    php:
+        indentation:
+            general:
+                size: 1
+        spaces:
+            general:
+                linefeed_character: newline
+        braces:
+            classes_functions:
+                class: undefined
+                function: undefined
+                closure: undefined
+            if:
+                opening: undefined
+            for:
+                opening: undefined
+            while:
+                opening: undefined
+            do_while:
+                opening: undefined
+            switch:
+                opening: undefined
+            try:
+                opening: undefined
+        upper_lower_casing:
+            keywords:
+                general: undefined
+            constants:
+                true_false_null: undefined
+
+
+tools:
+    external_code_coverage: true
+    external_code_coverage:
+        timeout: 600    # Timeout in seconds.
+
+
+filter:
+    excluded_paths:
+        - 'tests/*'
