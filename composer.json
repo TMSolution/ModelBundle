@@ -24,7 +24,7 @@
         "phpunit/phpunit": "5.*", 
         "phpunit/phpunit-story": "*", 
         "phploc/phploc": "*", 
-        "fabpot/php-cs-fixer": "*", 
+        "fabpot/php-cs-fixer": "*"
     },
     "autoload": {
         "psr-4": {
